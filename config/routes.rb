@@ -1,4 +1,6 @@
 NonSmokingBars::Application.routes.draw do
+  match 'map' => 'non_smoking_bars#map', :as => :map
+
   # added by nifty authentication
   match 'user/edit' => 'users#edit', :as => :edit_current_user
   match 'signup' => 'users#new', :as => :signup

@@ -1,6 +1,6 @@
 class NonSmokingBarsController < ApplicationController
 
-  before_filter :login_required, :except => [:index, :show]
+  before_filter :login_required, :except => [:index, :show, :map]
 
   # GET /non_smoking_bars
   # GET /non_smoking_bars.json
@@ -11,6 +11,10 @@ class NonSmokingBarsController < ApplicationController
       format.html # index.html.erb
       format.json { render json: @non_smoking_bars }
     end
+  end
+
+  def map
+    @non_smoking_bars = NonSmokingBar.all
   end
 
   # GET /non_smoking_bars/1

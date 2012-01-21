@@ -1,0 +1,69 @@
+<div id="map_canvas" style="width:100%; height: 300px; background: #bbb"></div>
+<style type="text/css">
+  .bubble h2 { margin: 0 }
+  .bubble p { margin-top: .3em }
+</style>
+
+<script>
+  var bars = <%= raw @non_smoking_bars.map { |bar| bar.attributes.slice('name', 'address') }.to_json %>,
+      located = []
+
+  function init() {
+    var city = 'Zagreb, Croatia',
+        geocoder = new google.maps.Geocoder,
+        map = new google.maps.Map(document.getElementById("map_canvas"), {
+          zoom: 13,
+          center: new google.maps.LatLng(45.804034, 15.978756),
+          mapTypeId: google.maps.MapTypeId.ROADMAP
+        })
+
+    function findBar(bar, idx) {
+      geocode(bar.address, function(results) {
+        bar.location = results[0].geometry.location
+        located.push(bar)
+        if (located.length == bars.length) positionBars(located)
+      })
+    }
+
+    function positionBars(located) {
+      located.forEach(function(bar, idx) {
+        setTimeout(function(){
+          // map.setCenter(results[0].geometry.location);
+          var marker = new google.maps.Marker({
+              title: bar.name,
+              map: map,
+              animation: google.maps.Animation.DROP,
+              position: bar.location
+          })
+
+          var infowindow = new google.maps.InfoWindow({
+            content: '<div class=bubble><h2>' + bar.name + '</h2><p>' + bar.address + '</p></div>'
+          });
+
+          google.maps.event.addListener(marker, 'click', function() {
+            infowindow.open(map, marker)
+          })
+        }, idx * 100)
+      })
+    }
+
+    function geocode(address, callback) {
+      geocoder.geocode({'address': address + ', ' + city}, function(results, status) {
+        if (status == google.maps.GeocoderStatus.OK) {
+          callback(results)
+        } else {
+          alert("Geocode was not successful for the following reason: " + status);
+        }
+      })
+    }
+
+    bars.forEach(findBar)
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    var script = document.createElement("script")
+    script.type = "text/javascript"
+    script.src = "http://maps.googleapis.com/maps/api/js?sensor=false&callback=init&key=AIzaSyB2cOb_XwX91dVM048ZE0WYM6bMUiOorJU"
+    document.body.appendChild(script)
+  }, false)
+</script>
